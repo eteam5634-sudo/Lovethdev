@@ -27,6 +27,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+build-check.log
+npm-out.log
+npm-retry.log
+npm-install.log
 
 # env files
 .env*
