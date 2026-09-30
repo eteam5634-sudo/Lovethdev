@@ -1,0 +1,126 @@
+import { useEffect, useState, type FormEvent } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { isValidEmail, MIN_PASSWORD_LENGTH } from '../lib/authErrors'
+import { useAuth } from '../lib/AuthContext'
+import { Button } from '../components/ui/Button'
+import { AuthInput } from '../components/auth/AuthInput'
+import { AuthLayout } from '../components/auth/AuthLayout'
+
+export function LoginPage() {
+  const { signIn, user, loading: authLoading } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const from =
+    (location.state as { from?: string; message?: string } | null)?.from ?? '/dashboard'
+  const flashMessage = (location.state as { message?: string } | null)?.message
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({})
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(flashMessage ?? null)
+  const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    document.title = 'Sign In | LovethDev Playground'
+  }, [])
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [authLoading, user, navigate])
+
+  const validate = () => {
+    const next: { email?: string; password?: string } = {}
+    if (!email.trim()) next.email = 'Email is required.'
+    else if (!isValidEmail(email)) next.email = 'Enter a valid email address.'
+    if (!password) next.password = 'Password is required.'
+    else if (password.length < MIN_PASSWORD_LENGTH) {
+      next.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`
+    }
+    setFieldErrors(next)
+    return Object.keys(next).length === 0
+  }
+
+  const onSubmit = async (event: FormEvent) => {
+    event.preventDefault()
+    setError(null)
+    setSuccess(null)
+    if (!validate()) return
+
+    setSubmitting(true)
+    const result = await signIn(email, password)
+    setSubmitting(false)
+
+    if (result.error) {
+      setError(result.error)
+      return
+    }
+
+    setSuccess("You're signed in successfully.")
+    navigate(from.startsWith('/') ? from : '/dashboard', { replace: true })
+  }
+
+  return (
+    <AuthLayout
+      title="Welcome Back"
+      subtitle="Sign in to continue exploring LovethDev Playground."
+      footer={
+        <>
+          Don&apos;t have an account?{' '}
+          <Link to="/signup" className="font-medium text-cyan-300 transition hover:text-cyan-200">
+            Create Account
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={onSubmit} className="space-y-4" noValidate>
+        <AuthInput
+          label="Email"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          error={fieldErrors.email}
+          placeholder="you@example.com"
+          required
+        />
+        <AuthInput
+          label="Password"
+          type="password"
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          error={fieldErrors.password}
+          placeholder="Your password"
+          required
+        />
+
+        <div className="flex justify-end">
+          <Link
+            to="/forgot-password"
+            className="text-sm text-slate-400 transition hover:text-cyan-300"
+          >
+            Forgot Password?
+          </Link>
+        </div>
+
+        {error ? (
+          <p className="rounded-xl border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200" role="alert">
+            {error}
+          </p>
+        ) : null}
+        {success ? (
+          <p className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200" role="status">
+            {success}
+          </p>
+        ) : null}
+
+        <Button type="submit" variant="aurora" className="w-full" disabled={submitting}>
+          {submitting ? 'Signing you in...' : 'Sign In'}
+        </Button>
+      </form>
+    </AuthLayout>
+  )
+}

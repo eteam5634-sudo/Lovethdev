@@ -1,12 +1,13 @@
 import { Github, Instagram, Linkedin } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const footerLinks = [
-  { href: '#playground', label: 'Playground' },
-  { href: '#projects', label: 'Projects' },
-  { href: '#experiments', label: 'Experiments' },
-  { href: '#components', label: 'Components' },
-  { href: '#about', label: 'About' },
-  { href: '#contact', label: 'Contact' },
+  { href: '/#playground', label: 'Playground' },
+  { href: '/#projects', label: 'Projects' },
+  { href: '/#experiments', label: 'Experiments' },
+  { href: '/#components', label: 'Components' },
+  { href: '/#about', label: 'About' },
+  { href: '/#contact', label: 'Contact' },
 ]
 
 const socials = [
@@ -21,9 +22,9 @@ export function Footer() {
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-10 md:grid-cols-[1.2fr_1fr_auto]">
           <div>
-            <a href="#playground" className="text-2xl font-bold text-white">
+            <Link to="/" className="text-2xl font-bold text-white">
               Loveth<span className="text-gradient">Dev</span>
-            </a>
+            </Link>
             <p className="mt-3 max-w-sm text-sm text-slate-400">
               Build. Experiment. Learn. Repeat.
             </p>
@@ -36,12 +37,12 @@ export function Footer() {
             <ul className="grid grid-cols-2 gap-2">
               {footerLinks.map((link) => (
                 <li key={link.href}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.href}
                     className="text-sm text-slate-400 transition hover:text-white"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

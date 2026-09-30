@@ -1,48 +1,65 @@
-import { About } from './components/About'
-import { AuroraBackground } from './components/AuroraBackground'
-import { ComponentLab } from './components/ComponentLab'
-import { Contact } from './components/Contact'
-import { DesignPlayground } from './components/DesignPlayground'
-import { Footer } from './components/Footer'
-import { Hero } from './components/Hero'
-import { Intro } from './components/Intro'
-import { MiniApps } from './components/MiniApps'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
-import { Philosophy } from './components/Philosophy'
-import { ProjectExplorer } from './components/ProjectExplorer'
-import { Stats } from './components/Stats'
-import { TechnologyWall } from './components/TechnologyWall'
-import { Terminal } from './components/Terminal'
-import { UIExperiments } from './components/UIExperiments'
+import { AuroraBackground } from './components/AuroraBackground'
+import { ProtectedRoute } from './components/auth/ProtectedRoute'
+import { AuthProvider } from './lib/AuthContext'
+import { DashboardPage } from './pages/DashboardPage'
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
+import { HomePage } from './pages/HomePage'
+import { LoginPage } from './pages/LoginPage'
+import { ResetPasswordPage } from './pages/ResetPasswordPage'
+import { SignupPage } from './pages/SignupPage'
+
+function AppShell() {
+  const location = useLocation()
+  const isAuthPage = [
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/reset-password',
+  ].includes(location.pathname)
+
+  const showGlobalChrome = !isAuthPage
+
+  return (
+    <div className="relative min-h-screen">
+      {showGlobalChrome ? <AuroraBackground /> : null}
+      {showGlobalChrome ? (
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-lg focus:bg-cyan-400 focus:px-4 focus:py-2 focus:text-slate-950"
+        >
+          Skip to content
+        </a>
+      ) : null}
+      {showGlobalChrome ? <Navbar /> : null}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
+  )
+}
 
 function App() {
   return (
-    <div className="relative min-h-screen">
-      <AuroraBackground />
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-lg focus:bg-cyan-400 focus:px-4 focus:py-2 focus:text-slate-950"
-      >
-        Skip to content
-      </a>
-      <Navbar />
-      <main id="main-content">
-        <Hero />
-        <Intro />
-        <ProjectExplorer />
-        <UIExperiments />
-        <MiniApps />
-        <ComponentLab />
-        <TechnologyWall />
-        <Terminal />
-        <DesignPlayground />
-        <Philosophy />
-        <Stats />
-        <About />
-        <Contact />
-      </main>
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppShell />
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 
