@@ -87,6 +87,18 @@ export function Navbar() {
           ) : user ? (
             <>
               <Link
+                href="/users"
+                className="rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
+              >
+                Community
+              </Link>
+              <Link
+                href="/profile"
+                className="rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
+              >
+                Profile
+              </Link>
+              <Link
                 href="/dashboard"
                 className="rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
               >
@@ -153,6 +165,20 @@ export function Navbar() {
               <p className="px-4 text-slate-400">Loading...</p>
             ) : user ? (
               <>
+                <Link
+                  href="/users"
+                  onClick={closeMenu}
+                  className="block rounded-xl px-4 py-3 text-xl text-white hover:bg-white/5"
+                >
+                  Community
+                </Link>
+                <Link
+                  href="/profile"
+                  onClick={closeMenu}
+                  className="block rounded-xl px-4 py-3 text-xl text-white hover:bg-white/5"
+                >
+                  Profile
+                </Link>
                 <Link
                   href="/dashboard"
                   onClick={closeMenu}

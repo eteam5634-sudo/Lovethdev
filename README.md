@@ -40,6 +40,11 @@ Auth is powered by **Supabase Auth** (email/password):
 - `/forgot-password` — request reset email
 - `/reset-password` — set a new password
 - `/dashboard` — protected account area
+- `/users` — community profiles (authenticated)
+- `/users/[id]` — profile detail
+- `/profile` — edit own profile + avatar
+
+See `ROLE_SYSTEM.md` for roles, RLS, and image permissions.
 
 Never put a Supabase service-role key in frontend code or `NEXT_PUBLIC_` variables.
 

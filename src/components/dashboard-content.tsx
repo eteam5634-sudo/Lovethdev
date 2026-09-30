@@ -78,6 +78,14 @@ export function DashboardContent() {
           <Link href="/" className="btn-primary mt-6 inline-flex">
             Back to Portfolio
           </Link>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href="/users" className="btn-secondary inline-flex !py-2.5 text-sm">
+              Community
+            </Link>
+            <Link href="/profile" className="btn-secondary inline-flex !py-2.5 text-sm">
+              Edit Profile
+            </Link>
+          </div>
         </article>
 
         <article className="glass rounded-2xl p-6 sm:p-8">

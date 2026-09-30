@@ -7,7 +7,11 @@ export async function updateSession(request: NextRequest) {
 
   if (!isSupabaseConfigured()) {
     const pathname = request.nextUrl.pathname;
-    if (pathname.startsWith("/dashboard")) {
+    if (
+      pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/users") ||
+      pathname.startsWith("/profile")
+    ) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = "/login";
       redirectUrl.searchParams.set("next", pathname);
@@ -46,13 +50,16 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
-  const isDashboard = pathname.startsWith("/dashboard");
+  const isProtected =
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/users") ||
+    pathname.startsWith("/profile");
   const isAuthPage =
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup") ||
     pathname.startsWith("/forgot-password");
 
-  if (isDashboard && !user) {
+  if (isProtected && !user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("next", pathname);
