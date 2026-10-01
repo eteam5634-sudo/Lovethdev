@@ -9,12 +9,15 @@ import {
   UserRound,
 } from 'lucide-react'
 import { useAuth } from '../lib/AuthContext'
+import { useProfile } from '../lib/ProfileContext'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
+import { RoleBadge } from '../components/profile/RoleBadge'
 
 export function DashboardPage() {
   const { user, displayName, signOut } = useAuth()
+  const { profile } = useProfile()
   const navigate = useNavigate()
   const [signingOut, setSigningOut] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -73,11 +76,12 @@ export function DashboardPage() {
             <div className="mb-3 flex items-center gap-2">
               <h2 className="text-xl font-semibold text-white">Account</h2>
               <Badge tone="cyan">Authenticated</Badge>
+              {profile ? <RoleBadge role={profile.role} /> : null}
             </div>
             <dl className="space-y-2 text-sm">
               <div>
                 <dt className="text-slate-500">Name</dt>
-                <dd className="text-slate-200">{displayName}</dd>
+                <dd className="text-slate-200">{profile?.full_name || displayName}</dd>
               </div>
               <div>
                 <dt className="text-slate-500">Email</dt>
@@ -95,6 +99,12 @@ export function DashboardPage() {
               Jump back into the creative surface of LovethDev.
             </p>
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
+              <Link to="/users" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200 transition hover:border-cyan-400/30 hover:bg-white/10">
+                Community
+              </Link>
+              <Link to="/profile" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200 transition hover:border-cyan-400/30 hover:bg-white/10">
+                My Profile
+              </Link>
               <Link to="/#projects" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200 transition hover:border-cyan-400/30 hover:bg-white/10">
                 Projects
               </Link>

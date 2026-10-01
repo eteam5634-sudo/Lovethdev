@@ -3,12 +3,16 @@ import { Navbar } from './components/Navbar'
 import { AuroraBackground } from './components/AuroraBackground'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { AuthProvider } from './lib/AuthContext'
+import { ProfileProvider } from './lib/ProfileContext'
 import { DashboardPage } from './pages/DashboardPage'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
+import { ProfileSettingsPage } from './pages/ProfileSettingsPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { SignupPage } from './pages/SignupPage'
+import { UserDetailPage } from './pages/UserDetailPage'
+import { UsersPage } from './pages/UsersPage'
 
 function AppShell() {
   const location = useLocation()
@@ -47,6 +51,30 @@ function AppShell() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <UsersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users/:id"
+          element={
+            <ProtectedRoute>
+              <UserDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfileSettingsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
@@ -57,7 +85,9 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppShell />
+        <ProfileProvider>
+          <AppShell />
+        </ProfileProvider>
       </AuthProvider>
     </BrowserRouter>
   )

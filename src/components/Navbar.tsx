@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, LogOut, Menu, Sparkles, X } from 'lucide-react'
+import { LayoutDashboard, LogOut, Menu, Sparkles, Users, UserRound, X } from 'lucide-react'
 import { useAuth } from '../lib/AuthContext'
 import { Button } from './ui/Button'
 
@@ -106,6 +106,22 @@ export function Navbar() {
           <div className="hidden items-center gap-2 lg:flex">
             {!loading && user ? (
               <>
+                <NavLink to="/users">
+                  {({ isActive }) => (
+                    <Button size="sm" variant={isActive ? 'secondary' : 'ghost'}>
+                      <Users className="h-4 w-4" />
+                      Community
+                    </Button>
+                  )}
+                </NavLink>
+                <NavLink to="/profile">
+                  {({ isActive }) => (
+                    <Button size="sm" variant={isActive ? 'secondary' : 'ghost'}>
+                      <UserRound className="h-4 w-4" />
+                      Profile
+                    </Button>
+                  )}
+                </NavLink>
                 <NavLink to="/dashboard">
                   {({ isActive }) => (
                     <Button size="sm" variant={isActive ? 'aurora' : 'secondary'}>
@@ -208,6 +224,18 @@ export function Navbar() {
           <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4">
             {!loading && user ? (
               <>
+                <Link to="/users" onClick={() => setOpen(false)}>
+                  <Button className="w-full" variant="secondary">
+                    <Users className="h-4 w-4" />
+                    Community
+                  </Button>
+                </Link>
+                <Link to="/profile" onClick={() => setOpen(false)}>
+                  <Button className="w-full" variant="secondary">
+                    <UserRound className="h-4 w-4" />
+                    Profile
+                  </Button>
+                </Link>
                 <Link to="/dashboard" onClick={() => setOpen(false)}>
                   <Button className="w-full" variant="aurora">
                     <LayoutDashboard className="h-4 w-4" />

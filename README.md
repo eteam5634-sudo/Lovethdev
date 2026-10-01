@@ -41,5 +41,10 @@ npm run build
 - `/forgot-password` — Request reset link
 - `/reset-password` — Set new password
 - `/dashboard` — protected account hub
+- `/users` — Community profiles (authenticated)
+- `/users/:id` — Profile detail
+- `/profile` — Own profile settings
+
+See `ROLE_SYSTEM.md` for roles, RLS, and Storage image rules.
 
 Never put the Supabase service-role key in frontend code.
