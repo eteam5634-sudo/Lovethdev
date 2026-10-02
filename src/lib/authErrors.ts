@@ -7,6 +7,9 @@ export function getAuthErrorMessage(error: unknown, fallback = 'Something went w
   if (message.includes('invalid login credentials')) {
     return 'Incorrect email or password. Please try again.'
   }
+  if (message.includes('user not found') || message.includes('no user found')) {
+    return 'No account was found with that email. Check the address or create an account.'
+  }
   if (message.includes('email not confirmed')) {
     return 'Please confirm your email before signing in. Check your inbox for the confirmation link.'
   }

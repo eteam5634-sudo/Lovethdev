@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, LogOut, Menu, Sparkles, Users, UserRound, X } from 'lucide-react'
 import { useAuth } from '../lib/AuthContext'
+import { useProfile } from '../lib/ProfileContext'
+import { roleLabel } from '../lib/roles'
 import { Button } from './ui/Button'
+import { RoleBadge } from './profile/RoleBadge'
+import { ProfileAvatar } from './profile/ProfileAvatar'
 
 const sectionLinks = [
   { href: '/#playground', hash: 'playground', label: 'Playground' },
@@ -14,13 +18,15 @@ const sectionLinks = [
 ]
 
 export function Navbar() {
-  const { user, loading, signOut } = useAuth()
+  const { user, loading, signOut, displayName } = useAuth()
+  const { profile, role } = useProfile()
   const location = useLocation()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [active, setActive] = useState('playground')
   const [signingOut, setSigningOut] = useState(false)
+  const [signedOutNotice, setSignedOutNotice] = useState(false)
   const isHome = location.pathname === '/'
 
   useEffect(() => {
@@ -58,8 +64,11 @@ export function Navbar() {
     await signOut()
     setSigningOut(false)
     setOpen(false)
-    navigate('/login')
+    setSignedOutNotice(true)
+    navigate('/login', { replace: true, state: { message: 'Signed out successfully.' } })
   }
+
+  const name = profile?.full_name?.trim() || displayName
 
   return (
     <header
@@ -106,22 +115,30 @@ export function Navbar() {
           <div className="hidden items-center gap-2 lg:flex">
             {!loading && user ? (
               <>
-                <NavLink to="/users">
-                  {({ isActive }) => (
-                    <Button size="sm" variant={isActive ? 'secondary' : 'ghost'}>
-                      <Users className="h-4 w-4" />
-                      Community
-                    </Button>
+                <div className="mr-1 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5">
+                  {profile ? (
+                    <ProfileAvatar
+                      ownerId={profile.user_id}
+                      ownerRole={profile.role}
+                      avatarPath={profile.avatar_url}
+                      fullName={profile.full_name}
+                      size="sm"
+                    />
+                  ) : (
+                    <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+                      <UserRound className="h-4 w-4 text-slate-300" />
+                    </span>
                   )}
-                </NavLink>
-                <NavLink to="/profile">
-                  {({ isActive }) => (
-                    <Button size="sm" variant={isActive ? 'secondary' : 'ghost'}>
-                      <UserRound className="h-4 w-4" />
-                      Profile
-                    </Button>
-                  )}
-                </NavLink>
+                  <div className="min-w-0 leading-tight">
+                    <p className="max-w-[9rem] truncate text-xs font-medium text-white">{name}</p>
+                    {role ? (
+                      <p className="text-[11px] text-slate-400">{roleLabel(role)}</p>
+                    ) : (
+                      <p className="text-[11px] text-slate-500">Loading role...</p>
+                    )}
+                  </div>
+                  {role ? <RoleBadge role={role} /> : null}
+                </div>
                 <NavLink to="/dashboard">
                   {({ isActive }) => (
                     <Button size="sm" variant={isActive ? 'aurora' : 'secondary'}>
@@ -142,22 +159,15 @@ export function Navbar() {
                 </Button>
               </>
             ) : !loading ? (
-              <>
-                <Link to="/login">
-                  <Button size="sm" variant="ghost">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link to="/signup">
-                  <Button size="sm" variant="aurora">
-                    Create Account
-                  </Button>
-                </Link>
-              </>
+              <Link to="/login">
+                <Button size="sm" variant="aurora">
+                  Sign In
+                </Button>
+              </Link>
             ) : (
               <span className="px-2 text-xs text-slate-500">Loading...</span>
             )}
-            {isHome ? (
+            {isHome && !user ? (
               <Button
                 size="sm"
                 variant="secondary"
@@ -181,6 +191,11 @@ export function Navbar() {
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </nav>
+        {signedOutNotice && !user ? (
+          <p className="sr-only" role="status">
+            Signed out successfully.
+          </p>
+        ) : null}
       </div>
 
       <div
@@ -224,10 +239,16 @@ export function Navbar() {
           <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4">
             {!loading && user ? (
               <>
-                <Link to="/users" onClick={() => setOpen(false)}>
-                  <Button className="w-full" variant="secondary">
-                    <Users className="h-4 w-4" />
-                    Community
+                <div className="mb-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                  <p className="font-medium text-white">{name}</p>
+                  <p className="mt-1 text-sm text-slate-400">
+                    {role ? roleLabel(role) : 'Loading role...'}
+                  </p>
+                </div>
+                <Link to="/dashboard" onClick={() => setOpen(false)}>
+                  <Button className="w-full" variant="aurora">
+                    <LayoutDashboard className="h-4 w-4" />
+                    Dashboard
                   </Button>
                 </Link>
                 <Link to="/profile" onClick={() => setOpen(false)}>
@@ -236,10 +257,15 @@ export function Navbar() {
                     Profile
                   </Button>
                 </Link>
-                <Link to="/dashboard" onClick={() => setOpen(false)}>
-                  <Button className="w-full" variant="aurora">
-                    <LayoutDashboard className="h-4 w-4" />
-                    Dashboard
+                <Link to="/profile" onClick={() => setOpen(false)}>
+                  <Button className="w-full" variant="ghost">
+                    Profile Settings
+                  </Button>
+                </Link>
+                <Link to="/users" onClick={() => setOpen(false)}>
+                  <Button className="w-full" variant="secondary">
+                    <Users className="h-4 w-4" />
+                    User Directory
                   </Button>
                 </Link>
                 <Button
@@ -255,13 +281,13 @@ export function Navbar() {
             ) : !loading ? (
               <>
                 <Link to="/login" onClick={() => setOpen(false)}>
-                  <Button className="w-full" variant="secondary">
+                  <Button className="w-full" variant="aurora">
                     Sign In
                   </Button>
                 </Link>
                 <Link to="/signup" onClick={() => setOpen(false)}>
-                  <Button className="w-full" variant="aurora">
-                    Create Account
+                  <Button className="w-full" variant="secondary">
+                    Sign Up
                   </Button>
                 </Link>
               </>

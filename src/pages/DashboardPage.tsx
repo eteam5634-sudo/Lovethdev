@@ -35,7 +35,7 @@ export function DashboardPage() {
       setError(result.error)
       return
     }
-    navigate('/login', { replace: true })
+    navigate('/login', { replace: true, state: { message: 'Signed out successfully.' } })
   }
 
   return (
@@ -65,8 +65,18 @@ export function DashboardPage() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 text-slate-950">
               <Sparkles className="h-5 w-5" aria-hidden="true" />
             </div>
-            <h2 className="text-2xl font-semibold text-white">Welcome back, {displayName}</h2>
+            <h2 className="text-2xl font-semibold text-white">
+              Welcome, {profile?.full_name?.trim() || displayName}
+            </h2>
             <p className="mt-2 text-sm text-slate-400">{user?.email}</p>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="text-sm text-slate-400">Role:</span>
+              {profile ? (
+                <RoleBadge role={profile.role} />
+              ) : (
+                <span className="text-sm text-slate-500">Loading role...</span>
+              )}
+            </div>
           </Card>
 
           <Card>
