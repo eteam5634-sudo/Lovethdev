@@ -2,7 +2,7 @@ import { getSupabaseClient } from './supabase'
 import { isAppRole, type AppRole, type Profile } from './roles'
 
 const PROFILE_SELECT =
-  'id, user_id, full_name, email, role, avatar_path, bio, created_at, updated_at'
+  'id, user_id, full_name, email, role, avatar_url, bio, created_at, updated_at'
 
 function mapProfile(row: Record<string, unknown>): Profile | null {
   if (!row || typeof row.id !== 'string' || typeof row.user_id !== 'string') return null
@@ -14,7 +14,7 @@ function mapProfile(row: Record<string, unknown>): Profile | null {
     full_name: typeof row.full_name === 'string' ? row.full_name : null,
     email: typeof row.email === 'string' ? row.email : null,
     role: row.role,
-    avatar_path: typeof row.avatar_path === 'string' ? row.avatar_path : null,
+    avatar_url: typeof row.avatar_url === 'string' ? row.avatar_url : null,
     bio: typeof row.bio === 'string' ? row.bio : null,
     created_at: typeof row.created_at === 'string' ? row.created_at : '',
     updated_at: typeof row.updated_at === 'string' ? row.updated_at : '',
@@ -39,7 +39,7 @@ export async function getCurrentProfile(): Promise<{
     const { data, error } = await supabase
       .from('profiles')
       .select(PROFILE_SELECT)
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .maybeSingle()
 
     if (error) return { profile: null, error: 'Unable to load your profile.' }
@@ -64,7 +64,6 @@ export async function ensureCurrentProfile(fullName?: string): Promise<{
     if (!user) return { profile: null, error: 'Not signed in.' }
 
     const { error } = await supabase.from('profiles').insert({
-      id: user.id,
       user_id: user.id,
       full_name:
         fullName?.trim() ||
@@ -115,14 +114,30 @@ export async function getProfileById(id: string): Promise<{
 }> {
   try {
     const supabase = getSupabaseClient()
-    const { data, error } = await supabase
+    const byUser = await supabase
+      .from('profiles')
+      .select(PROFILE_SELECT)
+      .eq('user_id', id)
+      .maybeSingle()
+
+    if (!byUser.error && byUser.data) {
+      return {
+        profile: mapProfile(byUser.data as Record<string, unknown>),
+        error: null,
+      }
+    }
+
+    const byId = await supabase
       .from('profiles')
       .select(PROFILE_SELECT)
       .eq('id', id)
       .maybeSingle()
 
-    if (error) return { profile: null, error: 'Unable to load this profile.' }
-    return { profile: data ? mapProfile(data as Record<string, unknown>) : null, error: null }
+    if (byId.error) return { profile: null, error: 'Unable to load this profile.' }
+    return {
+      profile: byId.data ? mapProfile(byId.data as Record<string, unknown>) : null,
+      error: null,
+    }
   } catch {
     return { profile: null, error: 'Unable to load this profile.' }
   }
@@ -145,7 +160,7 @@ export async function updateOwnProfile(input: {
         full_name: input.full_name.trim(),
         bio: input.bio.trim(),
       })
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .select(PROFILE_SELECT)
       .maybeSingle()
 
@@ -172,7 +187,7 @@ export async function deleteOwnProfile(): Promise<{ error: string | null }> {
       `${user.id}/avatar.webp`,
     ])
 
-    const { error } = await supabase.from('profiles').delete().eq('id', user.id)
+    const { error } = await supabase.from('profiles').delete().eq('user_id', user.id)
     if (error) return { error: 'Unable to delete your profile.' }
     return { error: null }
   } catch {
@@ -236,7 +251,7 @@ export async function uploadOwnAvatar(file: File): Promise<{
 
     const { error: updateError } = await supabase
       .from('profiles')
-      .update({ avatar_path: path })
+      .update({ avatar_url: path })
       .eq('id', user.id)
 
     if (updateError) {
@@ -266,7 +281,7 @@ export async function deleteOwnAvatar(): Promise<{ error: string | null }> {
 
     const { error } = await supabase
       .from('profiles')
-      .update({ avatar_path: null })
+      .update({ avatar_url: null })
       .eq('id', user.id)
 
     if (error) return { error: 'Unable to remove profile image.' }

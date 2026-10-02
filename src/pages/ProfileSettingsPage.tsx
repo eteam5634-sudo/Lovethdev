@@ -131,9 +131,9 @@ export function ProfileSettingsPage() {
         <Card>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <ProfileAvatar
-              ownerId={profile.id}
+              ownerId={profile.user_id}
               ownerRole={profile.role}
-              avatarPath={profile.avatar_path}
+              avatarPath={profile.avatar_url}
               fullName={profile.full_name}
               size="lg"
             />
@@ -157,7 +157,7 @@ export function ProfileSettingsPage() {
               <p className="mt-2 text-xs text-slate-500">
                 PNG, JPG, or WEBP up to {Math.round(MAX_AVATAR_BYTES / (1024 * 1024))}MB.
               </p>
-              {profile.avatar_path ? (
+              {profile.avatar_url ? (
                 <Button
                   className="mt-3"
                   size="sm"
@@ -223,7 +223,7 @@ export function ProfileSettingsPage() {
               <Button type="submit" variant="aurora" disabled={saving}>
                 {saving ? 'Saving...' : 'Save changes'}
               </Button>
-              <Link to={`/users/${profile.id}`}>
+              <Link to={`/users/${profile.user_id}`}>
                 <Button type="button" variant="secondary">
                   View public profile
                 </Button>

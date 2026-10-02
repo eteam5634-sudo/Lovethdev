@@ -68,9 +68,9 @@ export function UserDetailPage() {
           <Card className="overflow-hidden">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
               <ProfileAvatar
-                ownerId={profile.id}
+                ownerId={profile.user_id}
                 ownerRole={profile.role}
-                avatarPath={profile.avatar_path}
+                avatarPath={profile.avatar_url}
                 fullName={profile.full_name}
                 size="lg"
               />
@@ -86,7 +86,7 @@ export function UserDetailPage() {
                 </p>
 
                 <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
-                  {user?.id === profile.id ? (
+                  {user?.id === profile.user_id ? (
                     <div>
                       <dt className="text-slate-500">Email</dt>
                       <dd className="break-all text-slate-200">{profile.email ?? 'Unavailable'}</dd>
@@ -108,7 +108,7 @@ export function UserDetailPage() {
                   </div>
                 </dl>
 
-                {user?.id === profile.id ? (
+                {user?.id === profile.user_id ? (
                   <Link to="/profile" className="mt-6 inline-flex">
                     <Button variant="aurora" size="sm">
                       Edit my profile

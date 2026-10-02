@@ -10,9 +10,9 @@ export function ProfileCard({ profile }: { profile: Profile }) {
     <Card className="flex h-full flex-col">
       <div className="flex items-start gap-4">
         <ProfileAvatar
-          ownerId={profile.id}
+          ownerId={profile.user_id}
           ownerRole={profile.role}
-          avatarPath={profile.avatar_path}
+          avatarPath={profile.avatar_url}
           fullName={profile.full_name}
           size="md"
         />
@@ -28,7 +28,7 @@ export function ProfileCard({ profile }: { profile: Profile }) {
           </p>
         </div>
       </div>
-      <Link to={`/users/${profile.id}`} className="mt-5">
+      <Link to={`/users/${profile.user_id}`} className="mt-5">
         <Button variant="secondary" size="sm" className="w-full">
           View Profile
         </Button>

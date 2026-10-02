@@ -1,107 +1,97 @@
 # LovethDev Role & Profile System
 
-Reusable role-based profiles for LovethDev websites (Playground on `main`, Portfolio on `master`).
+Shared by:
+
+- LovethDev Developer Playground (`main`)
+- LovethDev Developer Portfolio (`master`)
+
+Use the **same Supabase project** for both websites.
 
 ## Roles
 
-| Role | Internal value | Notes |
-|------|----------------|-------|
-| Member | `member` | Default for every new signup |
-| Admin | `admin` | Elevated; cannot view Super Admin images |
-| Super Admin | `super_admin` | Highest; sees all profile images |
+| Role | Internal value | Default |
+|------|----------------|---------|
+| Member | `member` | Yes (every signup) |
+| Admin | `admin` | No |
+| Super Admin | `super_admin` | No |
 
-Users **cannot** choose or change roles in the UI. Role changes are blocked by database triggers.
+Users cannot choose or change roles in the UI.
 
 ## Profiles table
 
 `public.profiles`
 
-- `id` / `user_id` — both tied to `auth.users(id)` (`id = user_id = auth.uid()`)
-- `full_name`, `email`, `bio`
-- `role` — constrained to the three values above
-- `avatar_path` — private Storage object path (not a public URL)
+- `id` UUID PK
+- `user_id` UUID unique → `auth.users(id)`
+- `full_name`, `email`, `bio`, `avatar_url` (private storage path)
+- `role` constrained to `member | admin | super_admin`
 - `created_at`, `updated_at`
 
-## Automatic member on signup
+Signup trigger creates a profile with `role = member`.
 
-Trigger `on_auth_user_created_profile` inserts a profile with `role = 'member'` after each `auth.users` insert.
+## RLS
 
-## RLS (profiles)
+- SELECT: authenticated (community directory)
+- INSERT: own row only (`auth.uid() = user_id`), forced `member`
+- UPDATE: own row only; `role` / `user_id` / `id` protected by trigger
+- DELETE: own row only
 
-- **SELECT** — authenticated users can read profiles (community directory)
-- **INSERT** — own profile only (`auth.uid() = id`)
-- **UPDATE** — own profile only; `role` / `user_id` / `id` protected by trigger
-- **DELETE** — own profile only
+## Image permission matrix
 
-## Image visibility
+Bucket: `profile-images` (private)  
+Path: `{user_id}/avatar.{ext}`
 
-Bucket: `profile-images` (private)
+| Viewer \ Owner image | Member | Admin | Super Admin |
+|----------------------|--------|-------|-------------|
+| Member | YES | YES | YES |
+| Admin | YES | YES | **NO** |
+| Super Admin | YES | YES | YES |
 
-Path: `{user_id}/avatar.{png|jpg|webp}`
+Signed URLs are created only after Storage RLS allows the read. Admins see **Private** for Super Admin images.
 
-| Viewer | Can retrieve images for |
-|--------|-------------------------|
-| Member | Member + Admin + Super Admin |
-| Admin | Member + Admin (**not** Super Admin) |
-| Super Admin | Member + Admin + Super Admin |
+## Apply migration (required once per Supabase project)
 
-Owners can always view their own image. Signed URLs are created only after Storage RLS allows the read; admins get no URL for Super Admin images.
+In Supabase SQL Editor, run:
 
-## Storage policies
+`supabase/migrations/20260930120000_create_profiles_and_roles.sql`
 
-- Upload / update / delete: own folder only
-- Select: `can_view_profile_image(owner_id)` helper
+## Create the 3 test accounts (server-side)
 
-## Safe role promotion
+1. Add to `.env.local` (never commit):
 
-Run in the Supabase SQL editor (service role / dashboard), **not** from the browser:
-
-```sql
--- Promote by email (example)
-select public.set_user_role(id, 'admin')
-from public.profiles
-where email = 'someone@example.com';
-
--- Or promote to super_admin
-select public.set_user_role('USER_UUID_HERE', 'super_admin');
+```env
+SUPABASE_SERVICE_ROLE_KEY=...
+TEST_MEMBER_EMAIL=...
+TEST_MEMBER_PASSWORD=...
+TEST_ADMIN_EMAIL=...
+TEST_ADMIN_PASSWORD=...
+TEST_SUPER_ADMIN_EMAIL=...
+TEST_SUPER_ADMIN_PASSWORD=...
 ```
 
-`set_user_role` is **not** granted to `anon` / `authenticated`.
+2. Run:
 
-## Apply migration
+```bash
+node scripts/setup-test-accounts.mjs
+```
 
-1. Open Supabase Dashboard → SQL Editor for the project used by this app (`.env`).
-2. Paste and run:
+This uses the Admin API + `promote_user_role` (not granted to browser clients).
 
-`supabase/migrations/20260330120000_create_profiles_and_roles.sql`
+## Promote a user safely
 
-3. Confirm Auth redirect URLs include your app origin.
-4. Restart `npm run dev`.
+```sql
+SELECT public.promote_user_role('USER_UUID_HERE', 'admin');
+SELECT public.promote_user_role('USER_UUID_HERE', 'super_admin');
+```
 
-## Frontend routes
+## Frontend routes (both sites)
 
-- `/users` — Community directory
-- `/users/:id` — Profile detail
-- `/profile` — Own profile settings (name, bio, avatar)
-
-## Testing matrix (manual)
-
-Create three users, then promote two via SQL:
-
-1. Sign up User A → stays `member`
-2. Sign up User B → `select set_user_role(... ,'admin')`
-3. Sign up User C → `select set_user_role(... ,'super_admin')`
-
-Verify:
-
-- Member sees all avatars
-- Admin sees member/admin avatars; Super Admin shows **Private**
-- Super Admin sees all avatars
-- Direct `update profiles set role = 'admin'` from a member session fails
-- Member cannot update another user's row
+- `/users` — Community
+- `/users/[id]` — Profile detail (`id` = auth `user_id`)
+- `/profile` — Own settings
 
 ## Security notes
 
-- Never put `SUPABASE_SERVICE_ROLE_KEY` in frontend env files
+- Never put `SUPABASE_SERVICE_ROLE_KEY` in frontend env / client bundles
 - Do not commit `.env` / `.env.local`
-- Frontend hiding is not enough — RLS + Storage policies enforce access
+- Frontend role helpers are UX only; RLS + Storage policies enforce security
