@@ -13,6 +13,9 @@ export function getAuthErrorMessage(error: unknown): string {
   if (lower.includes("invalid login credentials")) {
     return "Incorrect email or password. Please try again.";
   }
+  if (lower.includes("user not found") || lower.includes("no user found")) {
+    return "No account was found with that email. Check the address or create an account.";
+  }
   if (lower.includes("user already registered") || lower.includes("already been registered")) {
     return "An account with this email already exists. Try signing in instead.";
   }

@@ -3,12 +3,17 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu, UserRound, X } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useProfile } from "@/components/profile/profile-provider";
+import { ProfileAvatar } from "@/components/profile/profile-avatar";
+import { RoleBadge } from "@/components/profile/role-badge";
+import { roleLabel } from "@/lib/roles";
 import { navLinks } from "@/data/skills";
 
 export function Navbar() {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, displayName } = useAuth();
+  const { profile, role } = useProfile();
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -16,6 +21,7 @@ export function Navbar() {
   const [signingOut, setSigningOut] = useState(false);
 
   const isHome = pathname === "/";
+  const name = profile?.full_name?.trim() || displayName;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -31,6 +37,10 @@ export function Navbar() {
     };
   }, [open]);
 
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
   const closeMenu = () => setOpen(false);
 
   const sectionHref = (hashHref: string) =>
@@ -41,7 +51,7 @@ export function Navbar() {
     await signOut();
     setSigningOut(false);
     closeMenu();
-    router.push("/");
+    router.replace("/login?signedOut=1");
     router.refresh();
   };
 
@@ -81,50 +91,50 @@ export function Navbar() {
           ))}
         </ul>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           {loading ? (
             <span className="text-sm text-slate-500">Loading...</span>
           ) : user ? (
             <>
-              <Link
-                href="/users"
-                className="rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
-              >
-                Community
-              </Link>
-              <Link
-                href="/profile"
-                className="rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
-              >
-                Profile
-              </Link>
+              <div className="mr-1 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5">
+                {profile ? (
+                  <ProfileAvatar profile={profile} size="sm" className="!h-8 !w-8" />
+                ) : (
+                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+                    <UserRound className="h-4 w-4 text-slate-300" aria-hidden="true" />
+                  </span>
+                )}
+                <div className="min-w-0 leading-tight">
+                  <p className="max-w-[9rem] truncate text-xs font-medium text-white">{name}</p>
+                  <p className="text-[11px] text-slate-400">
+                    {role ? roleLabel(role) : "Loading role..."}
+                  </p>
+                </div>
+                {role ? <RoleBadge role={role} /> : null}
+              </div>
               <Link
                 href="/dashboard"
-                className="rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
+                className="btn-primary !px-4 !py-2 text-sm"
+                aria-label="Open dashboard"
               >
+                <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
                 Dashboard
               </Link>
               <button
                 type="button"
                 onClick={handleSignOut}
                 disabled={signingOut}
-                className="btn-secondary !px-5 !py-2.5 text-sm"
+                className="btn-secondary !px-4 !py-2 text-sm"
+                aria-label="Sign out"
               >
+                <LogOut className="h-4 w-4" aria-hidden="true" />
                 {signingOut ? "Signing out..." : "Sign Out"}
               </button>
             </>
           ) : (
-            <>
-              <Link
-                href="/login"
-                className="rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
-              >
-                Sign In
-              </Link>
-              <Link href="/signup" className="btn-primary !px-5 !py-2.5 text-sm">
-                Create Account
-              </Link>
-            </>
+            <Link href="/login" className="btn-primary !px-5 !py-2.5 text-sm" aria-label="Sign in">
+              Sign In
+            </Link>
           )}
         </div>
 
@@ -165,12 +175,18 @@ export function Navbar() {
               <p className="px-4 text-slate-400">Loading...</p>
             ) : user ? (
               <>
+                <div className="mb-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                  <p className="font-medium text-white">{name}</p>
+                  <p className="mt-1 text-sm text-slate-400">
+                    {role ? roleLabel(role) : "Loading role..."}
+                  </p>
+                </div>
                 <Link
-                  href="/users"
+                  href="/dashboard"
                   onClick={closeMenu}
                   className="block rounded-xl px-4 py-3 text-xl text-white hover:bg-white/5"
                 >
-                  Community
+                  Dashboard
                 </Link>
                 <Link
                   href="/profile"
@@ -180,18 +196,27 @@ export function Navbar() {
                   Profile
                 </Link>
                 <Link
-                  href="/dashboard"
+                  href="/profile"
                   onClick={closeMenu}
                   className="block rounded-xl px-4 py-3 text-xl text-white hover:bg-white/5"
                 >
-                  Dashboard
+                  Profile Settings
+                </Link>
+                <Link
+                  href="/users"
+                  onClick={closeMenu}
+                  className="block rounded-xl px-4 py-3 text-xl text-white hover:bg-white/5"
+                >
+                  User Directory
                 </Link>
                 <button
                   type="button"
                   onClick={handleSignOut}
                   disabled={signingOut}
                   className="btn-secondary w-full justify-center"
+                  aria-label="Sign out"
                 >
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
                   {signingOut ? "Signing out..." : "Sign Out"}
                 </button>
               </>
@@ -200,16 +225,16 @@ export function Navbar() {
                 <Link
                   href="/login"
                   onClick={closeMenu}
-                  className="block rounded-xl px-4 py-3 text-xl text-white hover:bg-white/5"
+                  className="btn-primary w-full justify-center"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/signup"
                   onClick={closeMenu}
-                  className="btn-primary w-full justify-center"
+                  className="btn-secondary w-full justify-center"
                 >
-                  Create Account
+                  Sign Up
                 </Link>
               </>
             )}
