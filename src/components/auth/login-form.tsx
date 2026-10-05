@@ -7,6 +7,7 @@ import { Crown, Shield, UserRound } from "lucide-react";
 import { AuthAlert } from "@/components/auth/auth-alert";
 import { AuthInput } from "@/components/auth/auth-input";
 import { AuthShell } from "@/components/auth/auth-shell";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { useAuth } from "@/components/auth/auth-provider";
 import {
   getAuthErrorMessage,
@@ -22,11 +23,14 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next") || "/dashboard";
   const signedOut = searchParams.get("signedOut") === "1";
+  const callbackError = searchParams.get("error") === "auth_callback";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [error, setError] = useState("");
+  const [error, setError] = useState(
+    callbackError ? "Google sign-in failed. Please try again." : "",
+  );
   const [success, setSuccess] = useState(signedOut ? "Signed out successfully." : "");
   const [submitting, setSubmitting] = useState(false);
   const [testLoading, setTestLoading] = useState<AppRole | null>(null);
@@ -152,6 +156,18 @@ export function LoginForm() {
           {submitting ? "Signing in..." : "Sign In"}
         </button>
       </form>
+
+      <div className="my-6 flex items-center gap-3" aria-hidden="true">
+        <div className="h-px flex-1 bg-white/10" />
+        <span className="text-xs uppercase tracking-[0.14em] text-slate-500">or</span>
+        <div className="h-px flex-1 bg-white/10" />
+      </div>
+
+      <GoogleAuthButton
+        label="Continue with Google"
+        redirectTo={nextPath.startsWith("/") ? nextPath : "/dashboard"}
+        disabled={submitting || Boolean(testLoading)}
+      />
 
       <div className="mt-8 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-200">

@@ -39,6 +39,13 @@ export function getAuthErrorMessage(error: unknown): string {
   if (lower.includes("network") || lower.includes("fetch")) {
     return "Network error. Check your connection and try again.";
   }
+  if (
+    lower.includes("oauth") ||
+    lower.includes("provider") ||
+    lower.includes("google")
+  ) {
+    return "Google sign-in failed. Please try again or use email and password.";
+  }
 
   return message;
 }

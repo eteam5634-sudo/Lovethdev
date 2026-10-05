@@ -99,7 +99,10 @@ export async function ensureOwnProfile(
       user_id: user.id,
       email: user.email,
       full_name:
-        (user.user_metadata as { full_name?: string } | undefined)?.full_name ??
+        (user.user_metadata as { full_name?: string; name?: string } | undefined)
+          ?.full_name ??
+        (user.user_metadata as { full_name?: string; name?: string } | undefined)
+          ?.name ??
         user.email?.split("@")[0] ??
         "Member",
       role: "member",

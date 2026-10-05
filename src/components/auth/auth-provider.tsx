@@ -29,6 +29,7 @@ type AuthContextValue = {
     email: string;
     password: string;
   }) => Promise<{ error: Error | null }>;
+  signInWithGoogle: (redirectTo?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<{ error: Error | null }>;
   resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>;
   updatePassword: (password: string) => Promise<{ error: Error | null }>;
@@ -130,6 +131,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [supabase],
   );
 
+  const signInWithGoogle = useCallback(
+    async (redirectTo?: string) => {
+      if (!supabase) return { error: notConfiguredError() };
+
+      const next = redirectTo?.startsWith("/") ? redirectTo : "/dashboard";
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      });
+      return { error: error ? new Error(error.message) : null };
+    },
+    [supabase],
+  );
+
   const signOut = useCallback(async () => {
     if (!supabase) return { error: notConfiguredError() };
     const { error } = await supabase.auth.signOut();
@@ -159,8 +180,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const displayName = useMemo(() => {
     if (!user) return "";
-    const meta = user.user_metadata as { full_name?: string } | undefined;
-    return meta?.full_name?.trim() || user.email?.split("@")[0] || "User";
+    const meta = user.user_metadata as
+      | { full_name?: string; name?: string }
+      | undefined;
+    return (
+      meta?.full_name?.trim() ||
+      meta?.name?.trim() ||
+      user.email?.split("@")[0] ||
+      "User"
+    );
   }, [user]);
 
   const value = useMemo(
@@ -171,6 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       configured: Boolean(supabase),
       signUp,
       signIn,
+      signInWithGoogle,
       signOut,
       resetPasswordForEmail,
       updatePassword,
@@ -183,6 +212,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       supabase,
       signUp,
       signIn,
+      signInWithGoogle,
       signOut,
       resetPasswordForEmail,
       updatePassword,
