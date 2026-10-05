@@ -136,13 +136,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!supabase) return { error: notConfiguredError() };
 
       const next = redirectTo?.startsWith("/") ? redirectTo : "/dashboard";
+      try {
+        sessionStorage.setItem("lovethdev_auth_next", next);
+        document.cookie = `lovethdev_auth_next=${encodeURIComponent(next)}; Path=/; Max-Age=600; SameSite=Lax`;
+      } catch {
+        // ignore
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+          redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
             access_type: "offline",
-            prompt: "consent",
+            prompt: "select_account",
           },
         },
       });

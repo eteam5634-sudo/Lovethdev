@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+
+const NEXT_COOKIE = "lovethdev_auth_next";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const nextParam = searchParams.get("next") ?? "/dashboard";
+  const cookieStore = await cookies();
+  const fromCookie = cookieStore.get(NEXT_COOKIE)?.value;
+  const nextParam = searchParams.get("next") ?? fromCookie ?? "/dashboard";
   const next = nextParam.startsWith("/") ? nextParam : "/dashboard";
 
   if (!isSupabaseConfigured()) {
@@ -16,7 +21,9 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const response = NextResponse.redirect(`${origin}${next}`);
+      response.cookies.set(NEXT_COOKIE, "", { path: "/", maxAge: 0 });
+      return response;
     }
   }
 
