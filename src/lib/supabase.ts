@@ -33,7 +33,8 @@ export function getSupabaseClient(): SupabaseClient {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: true,
+        // Callback page exchanges the code explicitly to avoid double-exchange races.
+        detectSessionInUrl: false,
         flowType: 'pkce',
       },
     })
