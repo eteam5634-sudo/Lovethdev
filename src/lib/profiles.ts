@@ -65,12 +65,13 @@ export async function ensureCurrentProfile(fullName?: string): Promise<{
 
     const { error } = await supabase.from('profiles').insert({
       user_id: user.id,
-      full_name:
-        fullName?.trim() ||
-        (typeof user.user_metadata?.full_name === 'string'
-          ? user.user_metadata.full_name
-          : '') ||
-        '',
+        full_name:
+          fullName?.trim() ||
+          (typeof user.user_metadata?.full_name === 'string'
+            ? user.user_metadata.full_name
+            : '') ||
+          (typeof user.user_metadata?.name === 'string' ? user.user_metadata.name : '') ||
+          '',
       email: user.email ?? null,
       role: 'member',
     })

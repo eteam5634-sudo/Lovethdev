@@ -4,6 +4,7 @@ import { isValidEmail, MIN_PASSWORD_LENGTH } from '../lib/authErrors'
 import { useAuth } from '../lib/AuthContext'
 import { AuthInput } from '../components/auth/AuthInput'
 import { AuthLayout } from '../components/auth/AuthLayout'
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton'
 import { Button } from '../components/ui/Button'
 
 export function SignupPage() {
@@ -137,6 +138,14 @@ export function SignupPage() {
           {submitting ? 'Creating your account...' : 'Create Account'}
         </Button>
       </form>
+
+      <div className="my-6 flex items-center gap-3" aria-hidden="true">
+        <div className="h-px flex-1 bg-white/10" />
+        <span className="text-xs tracking-[0.14em] text-slate-500 uppercase">or</span>
+        <div className="h-px flex-1 bg-white/10" />
+      </div>
+
+      <GoogleAuthButton label="Continue with Google" disabled={submitting} />
     </AuthLayout>
   )
 }

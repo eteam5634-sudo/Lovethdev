@@ -22,6 +22,7 @@ interface AuthContextValue {
     fullName: string,
   ) => Promise<{ error: string | null; needsEmailConfirmation: boolean }>
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
+  signInWithGoogle: (redirectTo?: string) => Promise<{ error: string | null }>
   signOut: () => Promise<{ error: string | null }>
   resetPasswordForEmail: (email: string) => Promise<{ error: string | null }>
   updatePassword: (password: string) => Promise<{ error: string | null }>
@@ -115,6 +116,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const signInWithGoogle = useCallback(async (redirectTo?: string) => {
+    try {
+      const supabase = getSupabaseClient()
+      const next = redirectTo?.startsWith('/') ? redirectTo : '/dashboard'
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      })
+      if (error) return { error: getAuthErrorMessage(error) }
+      return { error: null }
+    } catch (error) {
+      return { error: getAuthErrorMessage(error) }
+    }
+  }, [])
+
   const signOut = useCallback(async () => {
     try {
       const supabase = getSupabaseClient()
@@ -158,6 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       configured: isSupabaseConfigured,
       signUp,
       signIn,
+      signInWithGoogle,
       signOut,
       resetPasswordForEmail,
       updatePassword,
@@ -169,6 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       signUp,
       signIn,
+      signInWithGoogle,
       signOut,
       resetPasswordForEmail,
       updatePassword,

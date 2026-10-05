@@ -4,6 +4,7 @@ import { AuroraBackground } from './components/AuroraBackground'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { AuthProvider } from './lib/AuthContext'
 import { ProfileProvider } from './lib/ProfileContext'
+import { AuthCallbackPage } from './pages/AuthCallbackPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
 import { HomePage } from './pages/HomePage'
@@ -21,6 +22,7 @@ function AppShell() {
     '/signup',
     '/forgot-password',
     '/reset-password',
+    '/auth/callback',
   ].includes(location.pathname)
 
   const showGlobalChrome = !isAuthPage
@@ -41,6 +43,7 @@ function AppShell() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route

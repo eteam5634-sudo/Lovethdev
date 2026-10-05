@@ -6,6 +6,7 @@ import { useAuth } from '../lib/AuthContext'
 import { Button } from '../components/ui/Button'
 import { AuthInput } from '../components/auth/AuthInput'
 import { AuthLayout } from '../components/auth/AuthLayout'
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton'
 
 type TestRole = 'member' | 'admin' | 'super_admin'
 
@@ -149,6 +150,18 @@ export function LoginPage() {
           {submitting ? 'Signing you in...' : 'Sign In'}
         </Button>
       </form>
+
+      <div className="my-6 flex items-center gap-3" aria-hidden="true">
+        <div className="h-px flex-1 bg-white/10" />
+        <span className="text-xs tracking-[0.14em] text-slate-500 uppercase">or</span>
+        <div className="h-px flex-1 bg-white/10" />
+      </div>
+
+      <GoogleAuthButton
+        label="Continue with Google"
+        redirectTo={from.startsWith('/') ? from : '/dashboard'}
+        disabled={submitting}
+      />
 
       <div className="mt-8 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4">
         <p className="text-xs font-semibold tracking-[0.16em] text-amber-200 uppercase">
