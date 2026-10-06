@@ -5,6 +5,7 @@ import { useAuth } from '../lib/AuthContext'
 import { AuthInput } from '../components/auth/AuthInput'
 import { AuthLayout } from '../components/auth/AuthLayout'
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton'
+import { DiscordAuthButton } from '../components/auth/DiscordAuthButton'
 import { Button } from '../components/ui/Button'
 
 export function SignupPage() {
@@ -145,7 +146,10 @@ export function SignupPage() {
         <div className="h-px flex-1 bg-white/10" />
       </div>
 
-      <GoogleAuthButton label="Continue with Google" disabled={submitting} />
+      <div className="space-y-2">
+        <GoogleAuthButton label="Continue with Google" disabled={submitting} />
+        <DiscordAuthButton label="Continue with Discord" disabled={submitting} />
+      </div>
     </AuthLayout>
   )
 }

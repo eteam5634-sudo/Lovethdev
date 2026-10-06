@@ -37,9 +37,10 @@ export function getAuthErrorMessage(error: unknown, fallback = 'Something went w
   if (
     message.includes('oauth') ||
     message.includes('provider') ||
-    message.includes('google')
+    message.includes('google') ||
+    message.includes('discord')
   ) {
-    return 'Google sign-in failed. Please try again or use email and password.'
+    return 'Social sign-in failed. Please try again or use email and password.'
   }
 
   if ('message' in error && typeof error.message === 'string' && error.message.trim()) {

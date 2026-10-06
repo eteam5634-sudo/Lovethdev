@@ -7,6 +7,7 @@ import { Button } from '../components/ui/Button'
 import { AuthInput } from '../components/auth/AuthInput'
 import { AuthLayout } from '../components/auth/AuthLayout'
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton'
+import { DiscordAuthButton } from '../components/auth/DiscordAuthButton'
 
 type TestRole = 'member' | 'admin' | 'super_admin'
 
@@ -157,11 +158,18 @@ export function LoginPage() {
         <div className="h-px flex-1 bg-white/10" />
       </div>
 
-      <GoogleAuthButton
-        label="Continue with Google"
-        redirectTo={from.startsWith('/') ? from : '/dashboard'}
-        disabled={submitting}
-      />
+      <div className="space-y-2">
+        <GoogleAuthButton
+          label="Continue with Google"
+          redirectTo={from.startsWith('/') ? from : '/dashboard'}
+          disabled={submitting}
+        />
+        <DiscordAuthButton
+          label="Continue with Discord"
+          redirectTo={from.startsWith('/') ? from : '/dashboard'}
+          disabled={submitting}
+        />
+      </div>
 
       <div className="mt-8 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4">
         <p className="text-xs font-semibold tracking-[0.16em] text-amber-200 uppercase">

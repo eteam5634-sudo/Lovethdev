@@ -23,6 +23,7 @@ interface AuthContextValue {
   ) => Promise<{ error: string | null; needsEmailConfirmation: boolean }>
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signInWithGoogle: (redirectTo?: string) => Promise<{ error: string | null }>
+  signInWithDiscord: (redirectTo?: string) => Promise<{ error: string | null }>
   signOut: () => Promise<{ error: string | null }>
   resetPasswordForEmail: (email: string) => Promise<{ error: string | null }>
   updatePassword: (password: string) => Promise<{ error: string | null }>
@@ -144,6 +145,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const signInWithDiscord = useCallback(async (redirectTo?: string) => {
+    try {
+      const supabase = getSupabaseClient()
+      const next = redirectTo?.startsWith('/') ? redirectTo : '/dashboard'
+      try {
+        sessionStorage.setItem('lovethdev_auth_next', next)
+      } catch {
+        // ignore storage errors
+      }
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'discord',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+      if (error) return { error: getAuthErrorMessage(error) }
+      return { error: null }
+    } catch (error) {
+      return { error: getAuthErrorMessage(error) }
+    }
+  }, [])
+
   const signOut = useCallback(async () => {
     try {
       const supabase = getSupabaseClient()
@@ -188,6 +212,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUp,
       signIn,
       signInWithGoogle,
+      signInWithDiscord,
       signOut,
       resetPasswordForEmail,
       updatePassword,
@@ -200,6 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUp,
       signIn,
       signInWithGoogle,
+      signInWithDiscord,
       signOut,
       resetPasswordForEmail,
       updatePassword,

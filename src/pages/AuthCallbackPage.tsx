@@ -75,7 +75,7 @@ export function AuthCallbackPage() {
 
       if (oauthError) {
         if (!cancelled) {
-          setError('Google sign-in was cancelled or failed. Please try again.')
+          setError('Social sign-in was cancelled or failed. Please try again.')
         }
         clearStoredNext()
         return
@@ -104,14 +104,14 @@ export function AuthCallbackPage() {
               const msg = exchangeError.message?.toLowerCase() ?? ''
               if (msg.includes('redirect') || msg.includes('url')) {
                 setError(
-                  'Google redirect URL is not allowed. Add this site’s /auth/callback URL in Supabase Auth settings.',
+                  'OAuth redirect URL is not allowed. Add this site’s /auth/callback URL in Supabase Auth settings.',
                 )
               } else if (msg.includes('verifier') || msg.includes('pkce')) {
                 setError(
-                  'Sign-in session expired. Close this tab, open Sign In again, and retry Google.',
+                  'Sign-in session expired. Close this tab, open Sign In again, and retry.',
                 )
               } else {
-                setError('Could not complete Google sign-in. Please try again.')
+                setError('Could not complete social sign-in. Please try again.')
               }
               clearStoredNext()
               return
@@ -128,7 +128,7 @@ export function AuthCallbackPage() {
         if (!session) {
           if (!cancelled) {
             setError(
-              'No sign-in session was found. Confirm Google is enabled in Supabase and this site’s /auth/callback URL is allowlisted.',
+              'No sign-in session was found. Confirm the provider is enabled in Supabase and this site’s /auth/callback URL is allowlisted.',
             )
           }
           clearStoredNext()
@@ -138,7 +138,7 @@ export function AuthCallbackPage() {
         clearStoredNext()
         if (!cancelled) navigate(next, { replace: true })
       } catch {
-        if (!cancelled) setError('Could not complete Google sign-in. Please try again.')
+        if (!cancelled) setError('Could not complete social sign-in. Please try again.')
         clearStoredNext()
       }
     }
@@ -152,7 +152,7 @@ export function AuthCallbackPage() {
   return (
     <AuthLayout
       title="Completing sign-in"
-      subtitle="Finishing your Google authentication..."
+      subtitle="Finishing your social authentication..."
       footer={
         error ? (
           <>
