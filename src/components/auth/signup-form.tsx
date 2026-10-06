@@ -7,6 +7,7 @@ import { AuthAlert } from "@/components/auth/auth-alert";
 import { AuthInput } from "@/components/auth/auth-input";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
+import { DiscordAuthButton } from "@/components/auth/discord-auth-button";
 import { useAuth } from "@/components/auth/auth-provider";
 import {
   getAuthErrorMessage,
@@ -138,7 +139,10 @@ export function SignupForm() {
         <div className="h-px flex-1 bg-white/10" />
       </div>
 
-      <GoogleAuthButton label="Continue with Google" disabled={submitting} />
+      <div className="space-y-2">
+        <GoogleAuthButton label="Continue with Google" disabled={submitting} />
+        <DiscordAuthButton label="Continue with Discord" disabled={submitting} />
+      </div>
 
       <p className="mt-6 text-center text-sm text-slate-400">
         Already have an account?{" "}

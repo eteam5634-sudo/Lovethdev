@@ -8,6 +8,7 @@ import { AuthAlert } from "@/components/auth/auth-alert";
 import { AuthInput } from "@/components/auth/auth-input";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
+import { DiscordAuthButton } from "@/components/auth/discord-auth-button";
 import { useAuth } from "@/components/auth/auth-provider";
 import {
   getAuthErrorMessage,
@@ -163,11 +164,18 @@ export function LoginForm() {
         <div className="h-px flex-1 bg-white/10" />
       </div>
 
-      <GoogleAuthButton
-        label="Continue with Google"
-        redirectTo={nextPath.startsWith("/") ? nextPath : "/dashboard"}
-        disabled={submitting || Boolean(testLoading)}
-      />
+      <div className="space-y-2">
+        <GoogleAuthButton
+          label="Continue with Google"
+          redirectTo={nextPath.startsWith("/") ? nextPath : "/dashboard"}
+          disabled={submitting || Boolean(testLoading)}
+        />
+        <DiscordAuthButton
+          label="Continue with Discord"
+          redirectTo={nextPath.startsWith("/") ? nextPath : "/dashboard"}
+          disabled={submitting || Boolean(testLoading)}
+        />
+      </div>
 
       <div className="mt-8 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-200">

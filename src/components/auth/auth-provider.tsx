@@ -30,6 +30,7 @@ type AuthContextValue = {
     password: string;
   }) => Promise<{ error: Error | null }>;
   signInWithGoogle: (redirectTo?: string) => Promise<{ error: Error | null }>;
+  signInWithDiscord: (redirectTo?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<{ error: Error | null }>;
   resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>;
   updatePassword: (password: string) => Promise<{ error: Error | null }>;
@@ -158,6 +159,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [supabase],
   );
 
+  const signInWithDiscord = useCallback(
+    async (redirectTo?: string) => {
+      if (!supabase) return { error: notConfiguredError() };
+
+      const next = redirectTo?.startsWith("/") ? redirectTo : "/dashboard";
+      try {
+        sessionStorage.setItem("lovethdev_auth_next", next);
+        document.cookie = `lovethdev_auth_next=${encodeURIComponent(next)}; Path=/; Max-Age=600; SameSite=Lax`;
+      } catch {
+        // ignore
+      }
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "discord",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      return { error: error ? new Error(error.message) : null };
+    },
+    [supabase],
+  );
+
   const signOut = useCallback(async () => {
     if (!supabase) return { error: notConfiguredError() };
     const { error } = await supabase.auth.signOut();
@@ -207,6 +231,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signUp,
       signIn,
       signInWithGoogle,
+      signInWithDiscord,
       signOut,
       resetPasswordForEmail,
       updatePassword,
@@ -220,6 +245,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signUp,
       signIn,
       signInWithGoogle,
+      signInWithDiscord,
       signOut,
       resetPasswordForEmail,
       updatePassword,

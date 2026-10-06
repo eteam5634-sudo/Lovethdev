@@ -42,9 +42,10 @@ export function getAuthErrorMessage(error: unknown): string {
   if (
     lower.includes("oauth") ||
     lower.includes("provider") ||
-    lower.includes("google")
+    lower.includes("google") ||
+    lower.includes("discord")
   ) {
-    return "Google sign-in failed. Please try again or use email and password.";
+    return "Social sign-in failed. Please try again or use email and password.";
   }
 
   return message;
