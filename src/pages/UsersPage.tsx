@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { listProfiles } from '../lib/profiles'
-import type { Profile } from '../lib/roles'
+import { useProfile } from '../lib/ProfileContext'
+import { roleLabel, type Profile } from '../lib/roles'
 import { ProfileCard } from '../components/profile/ProfileCard'
 import { SectionHeading } from '../components/ui/SectionHeading'
 
 export function UsersPage() {
+  const { role } = useProfile()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -29,13 +31,20 @@ export function UsersPage() {
     }
   }, [])
 
+  const description =
+    role === 'admin'
+      ? 'Admin view: members and admins only. Super Admin profiles are hidden.'
+      : role === 'super_admin'
+        ? 'Super Admin view: all members, admins, and super admins.'
+        : 'Explore LovethDev members and profiles.'
+
   return (
     <div className="relative min-h-screen overflow-x-hidden px-4 pt-28 pb-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <SectionHeading
-          eyebrow="Profiles"
-          title="Community"
-          description="Explore LovethDev members and profiles."
+          eyebrow={role ? roleLabel(role) : 'Profiles'}
+          title="User Directory"
+          description={description}
         />
 
         {loading ? (

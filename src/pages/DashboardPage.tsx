@@ -110,7 +110,7 @@ export function DashboardPage() {
             </p>
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
               <Link to="/users" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200 transition hover:border-cyan-400/30 hover:bg-white/10">
-                Community
+                User Directory
               </Link>
               <Link to="/profile" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200 transition hover:border-cyan-400/30 hover:bg-white/10">
                 My Profile

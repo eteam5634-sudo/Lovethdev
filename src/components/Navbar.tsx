@@ -273,7 +273,7 @@ export function Navbar() {
                 <Link to="/users" onClick={() => setOpen(false)}>
                   <Button className="w-full" variant="secondary">
                     <Users className="h-4 w-4" />
-                    User Directory
+                    Users
                   </Button>
                 </Link>
                 <Button

@@ -1,6 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Shield, UserRound, Crown } from 'lucide-react'
 import { isValidEmail, MIN_PASSWORD_LENGTH } from '../lib/authErrors'
 import { useAuth } from '../lib/AuthContext'
 import { Button } from '../components/ui/Button'
@@ -8,14 +7,6 @@ import { AuthInput } from '../components/auth/AuthInput'
 import { AuthLayout } from '../components/auth/AuthLayout'
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton'
 import { DiscordAuthButton } from '../components/auth/DiscordAuthButton'
-
-type TestRole = 'member' | 'admin' | 'super_admin'
-
-function testEmailForRole(role: TestRole): string {
-  if (role === 'member') return import.meta.env.VITE_TEST_MEMBER_EMAIL?.trim() ?? ''
-  if (role === 'admin') return import.meta.env.VITE_TEST_ADMIN_EMAIL?.trim() ?? ''
-  return import.meta.env.VITE_TEST_SUPER_ADMIN_EMAIL?.trim() ?? ''
-}
 
 export function LoginPage() {
   const { signIn, user, loading: authLoading } = useAuth()
@@ -31,7 +22,6 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(flashMessage ?? null)
   const [submitting, setSubmitting] = useState(false)
-  const [testHint, setTestHint] = useState<string | null>(null)
 
   useEffect(() => {
     document.title = 'Sign In | LovethDev Playground'
@@ -59,7 +49,6 @@ export function LoginPage() {
     event.preventDefault()
     setError(null)
     setSuccess(null)
-    setTestHint(null)
     if (!validate()) return
 
     setSubmitting(true)
@@ -73,23 +62,6 @@ export function LoginPage() {
 
     setSuccess("You're signed in successfully.")
     navigate(from.startsWith('/') ? from : '/dashboard', { replace: true })
-  }
-
-  const prefillsTestAccount = (role: TestRole) => {
-    const nextEmail = testEmailForRole(role)
-    setPassword('')
-    setError(null)
-    setSuccess(null)
-    if (!nextEmail) {
-      setTestHint(
-        `Add VITE_TEST_${role === 'super_admin' ? 'SUPER_ADMIN' : role.toUpperCase()}_EMAIL to .env (email only — never put passwords in VITE_ vars).`,
-      )
-      return
-    }
-    setEmail(nextEmail)
-    setTestHint(
-      `Test email filled for ${role === 'super_admin' ? 'Super Admin' : role}. Enter the password manually — passwords are never stored in the frontend.`,
-    )
   }
 
   return (
@@ -169,53 +141,6 @@ export function LoginPage() {
           redirectTo={from.startsWith('/') ? from : '/dashboard'}
           disabled={submitting}
         />
-      </div>
-
-      <div className="mt-8 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4">
-        <p className="text-xs font-semibold tracking-[0.16em] text-amber-200 uppercase">
-          Development / Test Accounts
-        </p>
-        <p className="mt-2 text-xs leading-relaxed text-slate-400">
-          These buttons only prefill the test account email. Passwords stay in your secure env /
-          password manager — never in the browser bundle.
-        </p>
-        <div className="mt-4 grid gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            className="w-full justify-start"
-            onClick={() => prefillsTestAccount('member')}
-            aria-label="Prefill member test account email"
-          >
-            <UserRound className="h-4 w-4" />
-            Sign in as Member
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            className="w-full justify-start"
-            onClick={() => prefillsTestAccount('admin')}
-            aria-label="Prefill admin test account email"
-          >
-            <Shield className="h-4 w-4" />
-            Sign in as Admin
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            className="w-full justify-start"
-            onClick={() => prefillsTestAccount('super_admin')}
-            aria-label="Prefill Super Admin test account email"
-          >
-            <Crown className="h-4 w-4" />
-            Sign in as Super Admin
-          </Button>
-        </div>
-        {testHint ? (
-          <p className="mt-3 text-xs text-amber-100/90" role="status">
-            {testHint}
-          </p>
-        ) : null}
       </div>
     </AuthLayout>
   )
