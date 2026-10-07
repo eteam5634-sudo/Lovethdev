@@ -46,7 +46,10 @@ Signup trigger `handle_new_user` inserts a profile with `role = member`.
 
 ## 4. RLS (profiles)
 
-- **SELECT**: authenticated (user directory)
+- **SELECT**:
+  - `member` / `super_admin`: all profiles
+  - `admin`: members + admins only (**cannot** see `super_admin` profiles)
+  - own profile always visible
 - **INSERT**: own row only (`auth.uid() = user_id`), forced `member`
 - **UPDATE**: own row only; `role` / `user_id` / `id` protected by trigger
 - **DELETE**: own row only
@@ -59,16 +62,16 @@ Signup trigger `handle_new_user` inserts a profile with `role = member`.
 - MIME: `image/png`, `image/jpeg`, `image/jpg`, `image/webp`
 - Users may upload/replace/delete **only** their own folder
 
-## 6. Image visibility matrix
+## 6. Directory + image visibility
 
-| Viewer \ Owner image | Member | Admin | Super Admin |
-|----------------------|--------|-------|-------------|
-| Member | YES | YES | YES |
-| Admin | YES | YES | **NO** |
-| Super Admin | YES | YES | YES |
+| Viewer | Member profile | Admin profile | Super Admin profile | Super Admin image |
+|--------|----------------|---------------|---------------------|-------------------|
+| Member | YES | YES | YES | YES |
+| Admin | YES | YES | **NO (hidden)** | N/A |
+| Super Admin | YES | YES | YES | YES |
 
-Admins still see Super Admin **profile records**, but the image shows **Private / unavailable**.  
-Enforced by Storage RLS via `can_view_profile_image(owner_user_id)` — not by hiding buttons alone.
+Admin cannot see Super Admin users in `/users` (RLS).  
+Image rules still use Storage RLS via `can_view_profile_image`.
 
 ## 7. Login / logout
 

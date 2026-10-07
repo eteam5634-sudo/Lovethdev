@@ -39,9 +39,10 @@ export default async function UsersPage() {
 
         <div className="container-narrow relative z-10 px-4 sm:px-6 lg:px-8">
           <header className="mb-10 max-w-2xl">
-            <h1 className="section-title">Community</h1>
+            <h1 className="section-title">User Directory</h1>
             <p className="section-subtitle">
-              Explore LovethDev members and profiles.
+              Super Admins see everyone. Admins see members and admins only
+              (Super Admin profiles are hidden by the database).
             </p>
           </header>
           <UsersDirectory />
