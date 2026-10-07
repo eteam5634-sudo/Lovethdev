@@ -247,15 +247,32 @@ export async function uploadOwnAvatar(file: File): Promise<{
       .upload(path, file, { upsert: true, contentType: file.type, cacheControl: '3600' })
 
     if (uploadError) {
-      return { path: null, error: 'Unable to upload profile image.' }
+      const msg = uploadError.message?.toLowerCase() ?? ''
+      if (msg.includes('bucket') || msg.includes('not found')) {
+        return {
+          path: null,
+          error:
+            'Storage bucket is missing. Run the profiles/roles migration in Supabase SQL Editor.',
+        }
+      }
+      if (msg.includes('policy') || msg.includes('permission') || msg.includes('row-level')) {
+        return {
+          path: null,
+          error: 'Upload was blocked by storage permissions. Sign in again and retry.',
+        }
+      }
+      return { path: null, error: 'Unable to upload profile image. Please try again.' }
     }
 
-    const { error: updateError } = await supabase
+    // profiles.user_id references auth.users.id — never filter by profiles.id here
+    const { data: updated, error: updateError } = await supabase
       .from('profiles')
       .update({ avatar_url: path })
-      .eq('id', user.id)
+      .eq('user_id', user.id)
+      .select(PROFILE_SELECT)
+      .maybeSingle()
 
-    if (updateError) {
+    if (updateError || !updated) {
       return { path: null, error: 'Image uploaded, but profile could not be updated.' }
     }
 
@@ -280,12 +297,14 @@ export async function deleteOwnAvatar(): Promise<{ error: string | null }> {
       `${user.id}/avatar.webp`,
     ])
 
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from('profiles')
       .update({ avatar_url: null })
-      .eq('id', user.id)
+      .eq('user_id', user.id)
+      .select('user_id')
+      .maybeSingle()
 
-    if (error) return { error: 'Unable to remove profile image.' }
+    if (error || !updated) return { error: 'Unable to remove profile image.' }
     return { error: null }
   } catch {
     return { error: 'Unable to remove profile image.' }

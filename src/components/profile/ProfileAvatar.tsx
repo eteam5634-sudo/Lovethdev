@@ -30,7 +30,7 @@ export function ProfileAvatar({
   const [loading, setLoading] = useState(true)
   const [unavailable, setUnavailable] = useState(false)
 
-  const allowedByRole = canViewProfileImage(role, ownerRole, profile?.id, ownerId)
+  const allowedByRole = canViewProfileImage(role, ownerRole, profile?.user_id, ownerId)
 
   useEffect(() => {
     let cancelled = false
