@@ -147,6 +147,14 @@ export function Navbar() {
                     </Button>
                   )}
                 </NavLink>
+                <NavLink to="/profile">
+                  {({ isActive }) => (
+                    <Button size="sm" variant={isActive ? 'secondary' : 'ghost'}>
+                      <UserRound className="h-4 w-4" />
+                      Profile
+                    </Button>
+                  )}
+                </NavLink>
                 <Button
                   size="sm"
                   variant="ghost"

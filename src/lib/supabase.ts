@@ -24,7 +24,7 @@ let client: SupabaseClient | null = null
 export function getSupabaseClient(): SupabaseClient {
   if (!isSupabaseConfigured) {
     throw new Error(
-      'Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY to .env or .env.local, then restart the dev server.',
+      'Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (or VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY) to .env, restart the local server, and for production add the same vars in Vercel then redeploy.',
     )
   }
 

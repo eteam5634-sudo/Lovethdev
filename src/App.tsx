@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 import { AuroraBackground } from './components/AuroraBackground'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
@@ -14,6 +14,11 @@ import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { SignupPage } from './pages/SignupPage'
 import { UserDetailPage } from './pages/UserDetailPage'
 import { UsersPage } from './pages/UsersPage'
+
+function ProfilesIdRedirect() {
+  const { id } = useParams()
+  return <Navigate to={id ? `/users/${id}` : '/users'} replace />
+}
 
 function AppShell() {
   const location = useLocation()
@@ -62,6 +67,7 @@ function AppShell() {
             </ProtectedRoute>
           }
         />
+        <Route path="/profiles" element={<Navigate to="/users" replace />} />
         <Route
           path="/users/:id"
           element={
@@ -70,6 +76,7 @@ function AppShell() {
             </ProtectedRoute>
           }
         />
+        <Route path="/profiles/:id" element={<ProfilesIdRedirect />} />
         <Route
           path="/profile"
           element={
