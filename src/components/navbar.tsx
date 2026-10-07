@@ -120,6 +120,14 @@ export function Navbar() {
                 <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
                 Dashboard
               </Link>
+              <Link
+                href="/profile"
+                className="btn-secondary !px-4 !py-2 text-sm"
+                aria-label="Open profile settings"
+              >
+                <UserRound className="h-4 w-4" aria-hidden="true" />
+                Profile
+              </Link>
               <button
                 type="button"
                 onClick={handleSignOut}

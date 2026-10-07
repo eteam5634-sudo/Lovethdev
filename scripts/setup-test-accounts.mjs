@@ -10,7 +10,16 @@
  * 2. Put secrets only in .env.local (gitignored).
  *
  * Usage (from either website root):
- *   node scripts/setup-test-accounts.mjs
+ *   npm run setup:test-accounts
+ *   # or: node scripts/setup-test-accounts.mjs
+ *
+ * Required in .env.local:
+ *   SUPABASE_SERVICE_ROLE_KEY
+ *   TEST_MEMBER_PASSWORD
+ *   TEST_ADMIN_PASSWORD
+ *   TEST_SUPER_ADMIN_PASSWORD
+ *
+ * Emails default to the official LovethDev test accounts unless overridden.
  */
 
 import { createClient } from '@supabase/supabase-js'
@@ -41,24 +50,25 @@ const url =
 
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
+/** Official LovethDev test accounts (emails only — passwords from .env.local). */
 const accounts = [
   {
     role: 'member',
-    email: process.env.TEST_MEMBER_EMAIL,
+    email: process.env.TEST_MEMBER_EMAIL || 'iolawoyin62@gmail.com',
     password: process.env.TEST_MEMBER_PASSWORD,
     fullName: process.env.TEST_MEMBER_NAME || 'LovethDev Member',
   },
   {
     role: 'admin',
-    email: process.env.TEST_ADMIN_EMAIL,
+    email: process.env.TEST_ADMIN_EMAIL || 'eteam5634@gmail.com',
     password: process.env.TEST_ADMIN_PASSWORD,
     fullName: process.env.TEST_ADMIN_NAME || 'LovethDev Admin',
   },
   {
     role: 'super_admin',
-    email: process.env.TEST_SUPER_ADMIN_EMAIL,
+    email: process.env.TEST_SUPER_ADMIN_EMAIL || 'floravibe73@gmail.com',
     password: process.env.TEST_SUPER_ADMIN_PASSWORD,
-    fullName: process.env.TEST_SUPER_ADMIN_NAME || 'LovethDev Super Admin',
+    fullName: process.env.TEST_SUPER_ADMIN_NAME || 'Flora Vibe',
   },
 ]
 
@@ -77,9 +87,9 @@ if (!serviceRoleKey) {
 for (const account of accounts) {
   const label =
     account.role === 'super_admin' ? 'SUPER_ADMIN' : account.role.toUpperCase()
-  if (!account.email || !account.password) {
+  if (!account.password) {
     fail(
-      `Missing credentials for ${account.role}. Set TEST_${label}_EMAIL and TEST_${label}_PASSWORD in .env.local`,
+      `Missing password for ${account.role} (${account.email}). Set TEST_${label}_PASSWORD in .env.local`,
     )
   }
   if (account.password.length < 8) {
@@ -152,7 +162,7 @@ async function ensureProfile(userId, account) {
     if (metaError) throw metaError
   }
 
-  // Preferred RPC from shared migration
+  // Preferred RPC from shared migration (service role; not granted to browser)
   let roleError = (
     await admin.rpc('promote_user_role', {
       target_user_id: userId,
@@ -160,7 +170,6 @@ async function ensureProfile(userId, account) {
     })
   ).error
 
-  // Backward-compatible alias if an older migration used set_user_role
   if (roleError) {
     roleError = (
       await admin.rpc('set_user_role', {
@@ -180,6 +189,10 @@ async function ensureProfile(userId, account) {
 async function main() {
   console.log('Setting up LovethDev test accounts (server-side only)...')
   console.log(`Supabase URL: ${url}`)
+  console.log('Accounts:')
+  console.log('  member      → iolawoyin62@gmail.com (override with TEST_MEMBER_EMAIL)')
+  console.log('  admin       → eteam5634@gmail.com (override with TEST_ADMIN_EMAIL)')
+  console.log('  super_admin → floravibe73@gmail.com (override with TEST_SUPER_ADMIN_EMAIL)')
 
   for (const account of accounts) {
     process.stdout.write(`- ${account.role} (${account.email}) ... `)
@@ -189,7 +202,7 @@ async function main() {
   }
 
   console.log('\nDone. Roles are stored in public.profiles.')
-  console.log('Sign in on Playground/Portfolio with the TEST_* credentials from .env.local.')
+  console.log('Sign in on Playground/Portfolio with the passwords from .env.local.')
   console.log('Do not commit .env.local or share the service-role key.')
 }
 
