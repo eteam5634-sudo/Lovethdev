@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthAlert } from "@/components/auth/auth-alert";
 import { AuthInput } from "@/components/auth/auth-input";
 import { ProfileAvatar } from "@/components/profile/profile-avatar";
+import { ProfileUsersPanel } from "@/components/profile/profile-users-panel";
 import { RoleBadge } from "@/components/profile/role-badge";
 import { useProfile } from "@/components/profile/profile-provider";
 import { createClient } from "@/lib/supabase/client";
@@ -241,14 +243,24 @@ export function ProfileSettingsForm() {
           </div>
         </div>
 
-        <button
-          type="submit"
-          className="btn-primary w-full justify-center"
-          disabled={saving}
-        >
-          {saving ? "Saving..." : "Save Profile"}
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="submit"
+            className="btn-primary justify-center"
+            disabled={saving}
+          >
+            {saving ? "Saving..." : "Save Profile"}
+          </button>
+          <Link
+            href="/users"
+            className="btn-secondary inline-flex items-center justify-center !px-4 !py-2.5 text-sm"
+          >
+            User directory
+          </Link>
+        </div>
       </form>
+
+      <ProfileUsersPanel />
 
       <div className="mt-8 border-t border-white/10 pt-6">
         <h2 className="text-sm font-semibold text-rose-300">Danger zone</h2>
