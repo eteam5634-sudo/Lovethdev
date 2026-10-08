@@ -109,9 +109,27 @@ export function LoginPage() {
         </div>
 
         {error ? (
-          <p className="rounded-xl border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200" role="alert">
-            {error}
-          </p>
+          <div
+            className="space-y-2 rounded-xl border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200"
+            role="alert"
+          >
+            <p>{error}</p>
+            <p className="text-xs text-rose-100/80">
+              New email?{' '}
+              <Link to="/signup" className="font-medium text-cyan-300 underline-offset-2 hover:underline">
+                Create Account
+              </Link>
+              {' · '}
+              <Link
+                to="/forgot-password"
+                className="font-medium text-cyan-300 underline-offset-2 hover:underline"
+              >
+                Forgot Password
+              </Link>
+              {' · '}
+              or use Continue with Google below.
+            </p>
+          </div>
         ) : null}
         {success ? (
           <p className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200" role="status">
