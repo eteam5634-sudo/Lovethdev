@@ -11,7 +11,7 @@ export function getAuthErrorMessage(error: unknown): string {
   const lower = message.toLowerCase();
 
   if (lower.includes("invalid login credentials")) {
-    return "Incorrect email or password. Please try again.";
+    return "Incorrect email or password. If you used Google/Discord for this Gmail, use that button or Forgot Password to set a password.";
   }
   if (lower.includes("user not found") || lower.includes("no user found")) {
     return "No account was found with that email. Check the address or create an account.";
@@ -55,4 +55,4 @@ export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
-export const MIN_PASSWORD_LENGTH = 8;
+export const MIN_PASSWORD_LENGTH = 6;

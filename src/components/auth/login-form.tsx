@@ -76,7 +76,26 @@ export function LoginForm() {
       subtitle="Sign in to continue to your LovethDev dashboard."
     >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        {error ? <AuthAlert type="error" message={error} /> : null}
+        {error ? (
+          <div className="space-y-2">
+            <AuthAlert type="error" message={error} />
+            <p className="text-xs text-slate-400">
+              New email?{" "}
+              <Link href="/signup" className="font-medium text-cyan-300 hover:text-cyan-200">
+                Create Account
+              </Link>
+              {" · "}
+              <Link
+                href="/forgot-password"
+                className="font-medium text-cyan-300 hover:text-cyan-200"
+              >
+                Forgot Password
+              </Link>
+              {" · "}
+              or use Continue with Google below.
+            </p>
+          </div>
+        ) : null}
         {success ? <AuthAlert type="success" message={success} /> : null}
 
         <AuthInput
