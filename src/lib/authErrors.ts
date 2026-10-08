@@ -5,7 +5,7 @@ export function getAuthErrorMessage(error: unknown, fallback = 'Something went w
     'message' in error && typeof error.message === 'string' ? error.message.toLowerCase() : ''
 
   if (message.includes('invalid login credentials')) {
-    return 'Incorrect email or password. If this is a new Gmail, create an account first. If you used Google/Discord before, use that button or Forgot Password to set a password.'
+    return 'Incorrect email or password. If you used Google/Discord for this Gmail, use that button or Forgot Password to set a password.'
   }
   if (message.includes('user not found') || message.includes('no user found')) {
     return 'No account was found with that email. Check the address or create an account.'

@@ -106,12 +106,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = useCallback(async (email: string, password: string) => {
     try {
       const supabase = getSupabaseClient()
+      const trimmedEmail = email.trim()
       const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
+        email: trimmedEmail,
         password,
       })
-      if (error) return { error: getAuthErrorMessage(error) }
-      return { error: null }
+      if (!error) return { error: null }
+
+      const loginMessage = error.message?.toLowerCase() ?? ''
+      if (!loginMessage.includes('invalid login credentials')) {
+        return { error: getAuthErrorMessage(error) }
+      }
+
+      // New Gmail + password: create the account from the Sign In form so first-time
+      // users are not blocked by "Incorrect email or password".
+      const displayFromEmail = trimmedEmail.split('@')[0] || 'Creator'
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: trimmedEmail,
+        password,
+        options: {
+          data: {
+            full_name: displayFromEmail,
+            name: displayFromEmail,
+          },
+          emailRedirectTo: `${window.location.origin}/login`,
+        },
+      })
+
+      if (signUpError) {
+        const signUpMessage = signUpError.message.toLowerCase()
+        if (
+          signUpMessage.includes('already registered') ||
+          signUpMessage.includes('already been registered')
+        ) {
+          return {
+            error:
+              'Incorrect email or password. If you used Google/Discord for this Gmail, use that button or Forgot Password to set a password.',
+          }
+        }
+        return { error: getAuthErrorMessage(signUpError) }
+      }
+
+      if (data.session) return { error: null }
+
+      // Confirmation may be required, or signup returned an obfuscated existing-user response.
+      const { error: retryError } = await supabase.auth.signInWithPassword({
+        email: trimmedEmail,
+        password,
+      })
+      if (!retryError) return { error: null }
+
+      return {
+        error:
+          'Check your email to confirm this address, then sign in. If you already use Google for this Gmail, tap Continue with Google or use Forgot Password.',
+      }
     } catch (error) {
       return { error: getAuthErrorMessage(error) }
     }
