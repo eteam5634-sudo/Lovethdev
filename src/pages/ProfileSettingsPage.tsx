@@ -9,6 +9,7 @@ import {
 } from '../lib/profiles'
 import { useProfile } from '../lib/ProfileContext'
 import { ProfileAvatar } from '../components/profile/ProfileAvatar'
+import { ProfileUsersPanel } from '../components/profile/ProfileUsersPanel'
 import { RoleBadge } from '../components/profile/RoleBadge'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
@@ -228,9 +229,16 @@ export function ProfileSettingsPage() {
                   View public profile
                 </Button>
               </Link>
+              <Link to="/users">
+                <Button type="button" variant="ghost">
+                  User directory
+                </Button>
+              </Link>
             </div>
           </form>
         </Card>
+
+        <ProfileUsersPanel />
 
         <Card>
           <h2 className="text-lg font-semibold text-white">Danger zone</h2>
